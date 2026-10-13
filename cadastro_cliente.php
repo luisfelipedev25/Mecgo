@@ -2,39 +2,6 @@
 /**
  * MecGo - Cadastro do Cliente/Motorista
  * Local: htdocs/mecgo/cadastro_cliente.php
- *
- * Base: Documento de Requisitos MecGo v1.0
- *  - RF01: cadastro dos perfis de usuário (aqui, o perfil Cliente).
- *  - RF02: login por e-mail OU CPF  -> ambos são únicos na tabela.
- *  - Diagrama de classes, Usuário: idUsuario, nome, email, senha, telefone, cpf.
- *  - RNF03: senha armazenada de forma protegida (password_hash / bcrypt).
- *  - RNF09 (LGPD): registro do aceite do tratamento de dados pessoais.
- *
- * Pré-requisitos:
- *  - conexao.php na raiz, expondo uma conexão PDO em $pdo ($conexao e $conn também aceitos).
- *
- * Tabela (execute uma vez no phpMyAdmin):
- *
- *  CREATE TABLE IF NOT EXISTS usuarios (
- *      id_usuario      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
- *      nome            VARCHAR(100) NOT NULL,
- *      email           VARCHAR(120) NOT NULL,
- *      cpf             CHAR(11)     NOT NULL,
- *      telefone        VARCHAR(11)  NOT NULL,
- *      senha_hash      VARCHAR(255) NOT NULL,
- *      tipo            ENUM('cliente','prestador','administrador') NOT NULL DEFAULT 'cliente',
- *      status          ENUM('ativo','suspenso','bloqueado') NOT NULL DEFAULT 'ativo',
- *      aceite_lgpd_em  DATETIME NOT NULL,
- *      criado_em       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
- *      UNIQUE KEY uq_usuarios_email (email),
- *      UNIQUE KEY uq_usuarios_cpf (cpf)
- *  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
- *
- * Depois que a tabela existir, você pode ligar a garagem aos usuários:
- *
- *  ALTER TABLE veiculos
- *      ADD CONSTRAINT fk_veiculos_usuario FOREIGN KEY (id_usuario)
- *      REFERENCES usuarios(id_usuario) ON DELETE CASCADE;
  */
 
 declare(strict_types=1);
@@ -42,10 +9,7 @@ declare(strict_types=1);
 session_start();
 require_once __DIR__ . '/conexao.php';
 
-if (!isset($pdo)) {
-    $pdo = $conexao ?? $conn ?? null;
-}
-if (!($pdo instanceof PDO)) {
+if (!isset($pdo) || !($pdo instanceof PDO)) {
     http_response_code(500);
     exit('Falha na conexão com o banco de dados.');
 }
@@ -91,10 +55,7 @@ function cpfValido(string $cpf): bool
 /** Telefone brasileiro: DDD + 8 dígitos (fixo) ou DDD + 9 dígitos começando em 9 (celular). */
 function telefoneValido(string $tel): bool
 {
-    if (!preg_match('/^[1-9][1-9](9[0-9]{8}|[2-8][0-9]{7})$/', $tel)) {
-        return false;
-    }
-    return true;
+    return (bool) preg_match('/^[1-9][1-9](9[0-9]{8}|[2-8][0-9]{7})$/', $tel);
 }
 
 if (empty($_SESSION['csrf'])) {
@@ -114,15 +75,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit('Requisição inválida (CSRF).');
     }
 
-    $nome      = trim(preg_replace('/\s+/', ' ', strip_tags((string) ($_POST['nome'] ?? ''))) ?? '');
-    $email     = mb_strtolower(trim((string) ($_POST['email'] ?? '')));
-    $cpf       = somenteDigitos((string) ($_POST['cpf'] ?? ''));
-    $telefone  = somenteDigitos((string) ($_POST['telefone'] ?? ''));
-    $senha     = (string) ($_POST['senha'] ?? '');
-    $confirma  = (string) ($_POST['confirma_senha'] ?? '');
-    $lgpd      = isset($_POST['lgpd']) && $_POST['lgpd'] === '1';
+    $nome     = trim(preg_replace('/\s+/', ' ', strip_tags((string) ($_POST['nome'] ?? ''))) ?? '');
+    $email    = mb_strtolower(trim((string) ($_POST['email'] ?? '')));
+    $cpf      = somenteDigitos((string) ($_POST['cpf'] ?? ''));
+    $telefone = somenteDigitos((string) ($_POST['telefone'] ?? ''));
+    $senha    = (string) ($_POST['senha'] ?? '');
+    $confirma = (string) ($_POST['confirma_senha'] ?? '');
+    $lgpd     = isset($_POST['lgpd']) && $_POST['lgpd'] === '1';
 
-    // Nunca devolvemos a senha ao formulário
     $dados = [
         'nome' => $nome, 'email' => $email, 'cpf' => $cpf,
         'telefone' => $telefone, 'lgpd' => $lgpd,
@@ -155,10 +115,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erros['lgpd'] = 'É necessário aceitar o tratamento dos dados para criar a conta.';
     }
 
-    // Duplicidade de e-mail e CPF
+    // Duplicidade na tabela 'usuario'
     if (!$erros) {
         $stmt = $pdo->prepare(
-            'SELECT email, cpf FROM usuarios WHERE email = :email OR cpf = :cpf'
+            'SELECT email, cpf FROM usuario WHERE email = :email OR cpf = :cpf'
         );
         $stmt->execute([':email' => $email, ':cpf' => $cpf]);
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $existente) {
@@ -171,14 +131,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Persistência
+    // Persistência na tabela 'usuario' (agora gravando aceite_lgpd_em com a data e hora atuais)
     if (!$erros) {
         try {
             $stmt = $pdo->prepare(
-                'INSERT INTO usuarios
-                    (nome, email, cpf, telefone, senha_hash, tipo, status, aceite_lgpd_em)
+                'INSERT INTO usuario
+                    (nome, email, cpf, telefone, senha, tipo, status, aceite_lgpd_em)
                  VALUES
-                    (:nome, :email, :cpf, :tel, :hash, \'cliente\', \'ativo\', NOW())'
+                    (:nome, :email, :cpf, :tel, :hash, \'CLIENTE\', \'ativo\', NOW())'
             );
             $stmt->execute([
                 ':nome'  => $nome,
@@ -188,7 +148,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':hash'  => password_hash($senha, PASSWORD_DEFAULT),
             ]);
 
-            // Renova o token CSRF e avisa na tela de login
             $_SESSION['csrf'] = bin2hex(random_bytes(32));
             $_SESSION['flash'] = [
                 'tipo' => 'success',
@@ -197,7 +156,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: login_cliente.php');
             exit;
         } catch (PDOException $ex) {
-            // 23000 = violação de chave única (cadastro simultâneo com mesmo e-mail/CPF)
             if ($ex->getCode() === '23000') {
                 $erros['geral'] = 'E-mail ou CPF já cadastrado.';
             } else {
@@ -208,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Formata para reexibir nos campos com máscara
+// Formatação para reexibição
 $cpfExibe = $dados['cpf'] !== '' && strlen($dados['cpf']) === 11
     ? substr($dados['cpf'], 0, 3) . '.' . substr($dados['cpf'], 3, 3) . '.' . substr($dados['cpf'], 6, 3) . '-' . substr($dados['cpf'], 9)
     : $dados['cpf'];
@@ -412,7 +370,6 @@ if (strlen($telExibe) === 11) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 (function () {
-    // --- Máscaras ---
     function soNumeros(v) { return v.replace(/\D/g, ''); }
 
     var cpf = document.getElementById('cpf');
@@ -439,7 +396,6 @@ if (strlen($telExibe) === 11) {
         tel.value = v;
     });
 
-    // --- Mostrar/ocultar senha ---
     document.querySelectorAll('.btn-olho').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var campo = document.getElementById(btn.getAttribute('data-alvo'));
@@ -450,7 +406,6 @@ if (strlen($telExibe) === 11) {
         });
     });
 
-    // --- Indicador de força da senha (apenas orientação visual) ---
     var senha = document.getElementById('senha');
     var barra = document.getElementById('forcaBarra');
     var texto = document.getElementById('forcaTexto');
@@ -475,7 +430,6 @@ if (strlen($telExibe) === 11) {
         texto.textContent = niveis[n].t;
     });
 
-    // --- Evita duplo envio ---
     document.getElementById('formCadastro').addEventListener('submit', function () {
         var b = document.getElementById('btnCadastrar');
         b.disabled = true;
