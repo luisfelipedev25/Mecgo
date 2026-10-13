@@ -2,14 +2,6 @@
 /**
  * MecGo - Login do Cliente/Motorista
  * Local: htdocs/mecgo/login_cliente.php
- *
- * Base: Documento de Requisitos MecGo v1.0
- *  - RF02: login por e-mail OU CPF e senha.
- *  - RNF03: senha conferida com password_verify() (hash bcrypt gravado no cadastro).
- *  - RF16: contas suspensas ou bloqueadas pelo administrador não entram.
- *
- * Usa a tabela `usuarios` criada para o cadastro_cliente.php.
- * Em caso de sucesso grava $_SESSION['usuario_id'] (lido por garagem.php e solicitar_socorro.php).
  */
 
 declare(strict_types=1);
@@ -17,10 +9,7 @@ declare(strict_types=1);
 session_start();
 require_once __DIR__ . '/conexao.php';
 
-if (!isset($pdo)) {
-    $pdo = $conexao ?? $conn ?? null;
-}
-if (!($pdo instanceof PDO)) {
+if (!isset($pdo) || !($pdo instanceof PDO)) {
     http_response_code(500);
     exit('Falha na conexão com o banco de dados.');
 }
@@ -34,8 +23,8 @@ if (!empty($_SESSION['usuario_id'])) {
 // ---------------------------------------------------------------
 // Constantes e helpers
 // ---------------------------------------------------------------
-const MAX_TENTATIVAS = 5;      // falhas seguidas antes do bloqueio temporário
-const BLOQUEIO_SEGUNDOS = 300; // 5 minutos
+const MAX_TENTATIVAS = 5;
+const BLOQUEIO_SEGUNDOS = 300;
 
 function e(string $valor): string
 {
@@ -54,7 +43,6 @@ if (empty($_SESSION['csrf'])) {
 $erro = '';
 $identificador = '';
 
-// Mensagem vinda do cadastro (ex.: "Conta criada com sucesso!")
 $flash = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
 
@@ -71,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $identificador = trim((string) ($_POST['identificador'] ?? ''));
     $senha = (string) ($_POST['senha'] ?? '');
 
-    // Bloqueio temporário após várias falhas
     $bloqueadoAte = (int) ($_SESSION['login_bloqueado_ate'] ?? 0);
     if ($bloqueadoAte > time()) {
         $minutos = (int) ceil(($bloqueadoAte - time()) / 60);
@@ -79,7 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($identificador === '' || $senha === '') {
         $erro = 'Informe seu e-mail ou CPF e a senha.';
     } else {
-        // Define se o identificador é e-mail ou CPF
         if (str_contains($identificador, '@')) {
             $campo = 'email';
             $valor = mb_strtolower($identificador);
@@ -91,28 +77,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $usuario = null;
         if (($campo === 'email' && filter_var($valor, FILTER_VALIDATE_EMAIL))
             || ($campo === 'cpf' && strlen($valor) === 11)) {
-            // $campo vem de uma lista fixa acima, nunca da entrada do usuário
+            
             $stmt = $pdo->prepare(
-                "SELECT id_usuario, nome, senha_hash, tipo, status
-                   FROM usuarios WHERE {$campo} = :valor LIMIT 1"
+                "SELECT id_usuario, nome, senha, tipo, status
+                   FROM usuario WHERE {$campo} = :valor LIMIT 1"
             );
             $stmt->execute([':valor' => $valor]);
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
         }
 
-        // Hash falso para manter o tempo de resposta parecido quando o usuário não existe
-        $hashConferido = $usuario['senha_hash']
-            ?? '$2y$10$usesomesillystringforeUHKeVq1qJ5D5K0m2rW0e8xv0bQ2T9Jm6kZ0Wy';
-        $senhaOk = password_verify($senha, $hashConferido);
+        $senhaOk = false;
+        if ($usuario) {
+            if (password_verify($senha, $usuario['senha']) || $senha === $usuario['senha']) {
+                $senhaOk = true;
+            }
+        }
 
         if ($usuario && $senhaOk) {
             if ($usuario['status'] !== 'ativo') {
                 $erro = 'Sua conta está ' . ($usuario['status'] === 'bloqueado' ? 'bloqueada' : 'suspensa')
                       . '. Entre em contato com o suporte.';
-            } elseif ($usuario['tipo'] !== 'cliente') {
+            } elseif ($usuario['tipo'] !== 'CLIENTE') {
                 $erro = 'Este acesso é exclusivo para motoristas.';
             } else {
-                // Sucesso: renova a sessão (evita fixação de sessão) e grava os dados
                 session_regenerate_id(true);
                 unset($_SESSION['login_tentativas'], $_SESSION['login_bloqueado_ate']);
                 $_SESSION['csrf'] = bin2hex(random_bytes(32));
@@ -120,19 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['usuario_nome'] = $usuario['nome'];
                 $_SESSION['usuario_tipo'] = $usuario['tipo'];
 
-                // Atualiza o hash caso o algoritmo padrão do PHP tenha evoluído
-                if (password_needs_rehash($usuario['senha_hash'], PASSWORD_DEFAULT)) {
-                    $up = $pdo->prepare('UPDATE usuarios SET senha_hash = :h WHERE id_usuario = :id');
-                    $up->execute([
-                        ':h'  => password_hash($senha, PASSWORD_DEFAULT),
-                        ':id' => (int) $usuario['id_usuario'],
-                    ]);
-                }
-
-                // Quem já tem veículo vai direto pedir socorro; quem não tem, cadastra o primeiro
                 $destino = 'garagem.php';
                 try {
-                    $q = $pdo->prepare('SELECT COUNT(*) FROM veiculos WHERE id_usuario = :id');
+                    $q = $pdo->prepare('SELECT COUNT(*) FROM veiculo WHERE id_cliente = :id');
                     $q->execute([':id' => (int) $usuario['id_usuario']]);
                     if ((int) $q->fetchColumn() > 0) {
                         $destino = 'solicitar_socorro.php';
@@ -147,7 +124,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $erro = 'E-mail/CPF ou senha incorretos.';
         }
 
-        // Conta a falha (inclusive conta suspensa) para o bloqueio temporário
         if ($erro !== '') {
             $tentativas = (int) ($_SESSION['login_tentativas'] ?? 0) + 1;
             if ($tentativas >= MAX_TENTATIVAS) {
@@ -298,7 +274,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </p>
 </main>
 
-<!-- Recuperação de senha (RF02): fluxo por e-mail ainda será implementado -->
 <div class="modal fade" id="modalRecuperar" tabindex="-1" aria-labelledby="tituloRecuperar" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius:18px">
@@ -320,7 +295,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 (function () {
-    // Mostrar/ocultar senha
     var senha = document.getElementById('senha');
     var btn = document.getElementById('btnOlho');
     btn.addEventListener('click', function () {
@@ -329,11 +303,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         btn.querySelector('i').className = mostrar ? 'bi bi-eye-slash' : 'bi bi-eye';
     });
 
-    // Máscara de CPF só quando o campo parece um CPF (apenas números/pontuação)
     var campo = document.getElementById('identificador');
     campo.addEventListener('input', function () {
         var v = campo.value;
-        if (!/^[\d.\-\s]+$/.test(v)) return; // tem letra ou @: é e-mail, não mascara
+        if (!/^[\d.\-\s]+$/.test(v)) return;
         var n = v.replace(/\D/g, '').slice(0, 11);
         n = n.replace(/^(\d{3})(\d)/, '$1.$2')
              .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
@@ -341,7 +314,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         campo.value = n;
     });
 
-    // Evita duplo envio
     document.getElementById('formLogin').addEventListener('submit', function () {
         var b = document.getElementById('btnEntrar');
         b.disabled = true;

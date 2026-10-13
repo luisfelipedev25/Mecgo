@@ -2,41 +2,6 @@
 /**
  * MecGo - Solicitar Socorro (Cliente/Motorista)
  * Local: htdocs/mecgo/solicitar_socorro.php
- *
- * Base: Documento de Requisitos MecGo v1.0
- *  - Escopo, módulo 3: localização via GPS + seleção do tipo de problema.
- *  - Diagrama de classes: Atendimento (categoriaAvaria, localizacaoGPS, status, valorTotal),
- *    ligado a Cliente (0..*), Veículo (0..*) e Prestador (0..*).
- *  - RF05 (solicitar serviço com descrição do problema), RF11 (cancelamento).
- *  - RNF01: pedir socorro em no máximo 4 passos (veículo, avaria, localização, enviar).
- *
- * Pré-requisitos:
- *  - conexao.php na raiz, expondo uma conexão PDO em $pdo ($conexao e $conn também aceitos).
- *  - Login grava o id do usuário em $_SESSION['usuario_id'] (ou 'cliente_id').
- *  - Tabela veiculos já criada (veja garagem.php).
- *
- * Tabela (execute uma vez no phpMyAdmin):
- *
- *  CREATE TABLE IF NOT EXISTS atendimentos (
- *      id_atendimento   INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
- *      id_usuario       INT UNSIGNED NOT NULL,
- *      id_veiculo       INT UNSIGNED NOT NULL,
- *      id_prestador     INT UNSIGNED NULL,
- *      categoria_avaria ENUM('Pneu furado','Bateria','Guincho','Pane mecânica') NOT NULL,
- *      descricao        VARCHAR(500) NULL,
- *      latitude         DECIMAL(10,7) NOT NULL,
- *      longitude        DECIMAL(10,7) NOT NULL,
- *      status           ENUM('Aguardando','Aceito','Em deslocamento','No local',
- *                            'Em atendimento','Concluído','Cancelado') NOT NULL DEFAULT 'Aguardando',
- *      valor_total      DECIMAL(10,2) NULL,
- *      data_hora        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
- *      INDEX idx_usuario_status (id_usuario, status),
- *      INDEX idx_status (status),
- *      CONSTRAINT fk_atend_veiculo FOREIGN KEY (id_veiculo)
- *          REFERENCES veiculos(id_veiculo)
- *  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
- *
- * IMPORTANTE: o navegador só libera a geolocalização em HTTPS ou em http://localhost.
  */
 
 declare(strict_types=1);
@@ -44,10 +9,7 @@ declare(strict_types=1);
 session_start();
 require_once __DIR__ . '/conexao.php';
 
-if (!isset($pdo)) {
-    $pdo = $conexao ?? $conn ?? null;
-}
-if (!($pdo instanceof PDO)) {
+if (!isset($pdo) || !($pdo instanceof PDO)) {
     http_response_code(500);
     exit('Falha na conexão com o banco de dados.');
 }
@@ -70,7 +32,9 @@ const AVARIAS = [
     'guincho'  => ['label' => 'Guincho',       'icone' => 'bi-truck',                'dica' => 'Reboque do veículo'],
     'pane'     => ['label' => 'Pane mecânica', 'icone' => 'bi-gear-wide-connected',  'dica' => 'Motor, elétrica etc.'],
 ];
-const STATUS_ABERTOS = ['Aguardando', 'Aceito', 'Em deslocamento', 'No local', 'Em atendimento'];
+
+// Status ativos mapeados exatamente como estão no ENUM da tabela 'atendimento'
+const STATUS_ABERTOS = ['SOLICITADO', 'EM_DESLOCAMENTO', 'NO_LOCAL', 'EM_ATENDIMENTO'];
 
 function e(string $valor): string
 {
@@ -87,11 +51,11 @@ function formatarPlaca(string $placa): string
 function classeStatus(string $status): string
 {
     return match ($status) {
-        'Aguardando'                              => 'text-bg-warning',
-        'Aceito', 'Em deslocamento', 'No local'   => 'text-bg-primary',
-        'Em atendimento'                          => 'text-bg-info',
-        'Concluído'                               => 'text-bg-success',
-        default                                   => 'text-bg-secondary',
+        'SOLICITADO'      => 'text-bg-warning',
+        'EM_DESLOCAMENTO', 'NO_LOCAL' => 'text-bg-primary',
+        'EM_ATENDIMENTO'  => 'text-bg-info',
+        'CONCLUIDO'       => 'text-bg-success',
+        default           => 'text-bg-secondary',
     };
 }
 
@@ -100,12 +64,12 @@ if (empty($_SESSION['csrf'])) {
 }
 
 // ---------------------------------------------------------------
-// Veículos do cliente (usados na validação e no formulário)
+// Veículos do cliente (Tabela 'veiculo' e coluna 'id_cliente')
 // ---------------------------------------------------------------
 $stmt = $pdo->prepare(
-    'SELECT id_veiculo, tipo, placa, marca, modelo, ano
-       FROM veiculos
-      WHERE id_usuario = :uid
+    'SELECT id_veiculo, placa, marca, modelo, ano
+       FROM veiculo
+      WHERE id_cliente = :uid
    ORDER BY marca, modelo'
 );
 $stmt->execute([':uid' => $usuarioId]);
@@ -168,8 +132,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$erros) {
             $marcas = implode(',', array_fill(0, count(STATUS_ABERTOS), '?'));
             $stmt = $pdo->prepare(
-                "SELECT COUNT(*) FROM atendimentos
-                  WHERE id_usuario = ? AND id_veiculo = ? AND status IN ($marcas)"
+                "SELECT COUNT(*) FROM atendimento
+                  WHERE id_cliente = ? AND id_veiculo = ? AND status IN ($marcas)"
             );
             $stmt->execute(array_merge([$usuarioId, $veiculoId], STATUS_ABERTOS));
             if ((int) $stmt->fetchColumn() > 0) {
@@ -177,23 +141,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Persistência
+        // Persistência na tabela 'atendimento'
         if (!$erros) {
             try {
+                $gps = round($lat, 7) . ',' . round($lng, 7);
+                $categoriaAvaria = AVARIAS[$avariaKey]['label'];
+                if ($descricao !== '') {
+                    $categoriaAvaria .= ' - ' . $descricao;
+                }
+
                 $stmt = $pdo->prepare(
-                    'INSERT INTO atendimentos
-                        (id_usuario, id_veiculo, categoria_avaria, descricao, latitude, longitude, status)
+                    "INSERT INTO atendimento
+                        (id_cliente, id_veiculo, categoria_avaria, localizacao_gps, status)
                      VALUES
-                        (:uid, :vid, :cat, :desc, :lat, :lng, \'Aguardando\')'
+                        (:uid, :vid, :cat, :gps, 'SOLICITADO')"
                 );
                 $stmt->execute([
-                    ':uid'  => $usuarioId,
-                    ':vid'  => $veiculoId,
-                    ':cat'  => AVARIAS[$avariaKey]['label'],
-                    ':desc' => $descricao !== '' ? $descricao : null,
-                    ':lat'  => round($lat, 7),
-                    ':lng'  => round($lng, 7),
+                    ':uid' => $usuarioId,
+                    ':vid' => $veiculoId,
+                    ':cat' => $categoriaAvaria,
+                    ':gps' => $gps
                 ]);
+
                 $_SESSION['flash'] = [
                     'tipo' => 'success',
                     'msg'  => 'Socorro solicitado! Estamos procurando um prestador próximo.',
@@ -207,14 +176,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // ---------- Cancelar (RF11: só enquanto aguarda prestador) ----------
+    // ---------- Cancelar (Apenas se o status for SOLICITADO) ----------
     if ($acao === 'cancelar') {
         $atendId = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
         if ($atendId) {
             try {
                 $stmt = $pdo->prepare(
-                    "UPDATE atendimentos SET status = 'Cancelado'
-                      WHERE id_atendimento = :id AND id_usuario = :uid AND status = 'Aguardando'"
+                    "UPDATE atendimento SET status = 'CANCELADO'
+                      WHERE id_atendimento = :id AND id_cliente = :uid AND status = 'SOLICITADO'"
                 );
                 $stmt->execute([':id' => $atendId, ':uid' => $usuarioId]);
                 $_SESSION['flash'] = $stmt->rowCount()
@@ -237,9 +206,9 @@ $marcas = implode(',', array_fill(0, count(STATUS_ABERTOS), '?'));
 $stmt = $pdo->prepare(
     "SELECT a.id_atendimento, a.categoria_avaria, a.status, a.data_hora,
             v.marca, v.modelo, v.placa
-       FROM atendimentos a
-       JOIN veiculos v ON v.id_veiculo = a.id_veiculo
-      WHERE a.id_usuario = ? AND a.status IN ($marcas)
+       FROM atendimento a
+       JOIN veiculo v ON v.id_veiculo = a.id_veiculo
+      WHERE a.id_cliente = ? AND a.status IN ($marcas)
    ORDER BY a.data_hora DESC"
 );
 $stmt->execute(array_merge([$usuarioId], STATUS_ABERTOS));
@@ -318,7 +287,6 @@ unset($_SESSION['flash']);
             font-size: .85rem; flex: 0 0 28px;
         }
 
-        /* Cartões de avaria */
         .avaria-opcao { position: absolute; opacity: 0; pointer-events: none; }
         .avaria-label {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -339,7 +307,6 @@ unset($_SESSION['flash']);
         .avaria-opcao:focus-visible + .avaria-label { box-shadow: 0 0 0 .2rem rgba(255, 107, 0, .25); }
         .avaria-invalida .avaria-label { border-color: #dc3545; }
 
-        /* Caixa de localização */
         .local-box {
             border: 2px dashed #cfd5de; border-radius: 16px;
             padding: 1rem; text-align: center; background: #fafbfc;
@@ -420,7 +387,7 @@ unset($_SESSION['flash']);
                                 <?= e(date('d/m/Y H:i', strtotime($c['data_hora']))) ?>
                             </div>
                         </div>
-                        <?php if ($c['status'] === 'Aguardando'): ?>
+                        <?php if ($c['status'] === 'SOLICITADO'): ?>
                             <form method="post" action="solicitar_socorro.php"
                                   onsubmit="return confirm('Cancelar este chamado?');">
                                 <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
@@ -635,14 +602,12 @@ unset($_SESSION['flash']);
     btnLocal.addEventListener('click', capturar);
     form.addEventListener('change', formularioPronto);
 
-    // Evita duplo envio
     form.addEventListener('submit', function (ev) {
         if (btnEnviar.disabled) { ev.preventDefault(); return; }
         btnEnviar.disabled = true;
         btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando...';
     });
 
-    // Se o servidor devolveu o formulário com coordenadas, reaproveita
     if (inLat.value !== '' && inLng.value !== '') {
         var la = parseFloat(inLat.value), lo = parseFloat(inLng.value);
         if (!isNaN(la) && !isNaN(lo)) { mostrarSucesso(la, lo, null); }
