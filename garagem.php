@@ -2,40 +2,6 @@
 /**
  * MecGo - Garagem de Veículos (Cliente/Motorista)
  * Local: htdocs/mecgo/garagem.php
- *
- * Base: Documento de Requisitos MecGo v1.0
- *  - Escopo, módulo 2: o cliente cadastra múltiplos veículos (Tipo, Marca, Modelo, Ano, Placa, Cor).
- *  - Diagrama de classes: Cliente 1 --- 1..* Veículo.
- *
- * Pré-requisitos:
- *  - conexao.php na raiz, expondo uma conexão PDO em $pdo
- *    (também aceito $conexao ou $conn, caso seu arquivo use outro nome).
- *  - O login grava o id do usuário em $_SESSION['usuario_id'] (ou 'cliente_id').
- *
- * Tabela (execute uma vez no phpMyAdmin):
- *
- *  CREATE TABLE IF NOT EXISTS veiculos (
- *      id_veiculo  INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
- *      id_usuario  INT UNSIGNED NOT NULL,
- *      tipo        ENUM('Carro','Moto') NOT NULL DEFAULT 'Carro',
- *      placa       VARCHAR(7)   NOT NULL,
- *      marca       VARCHAR(50)  NOT NULL,
- *      modelo      VARCHAR(80)  NOT NULL,
- *      ano         SMALLINT UNSIGNED NOT NULL,
- *      cor         VARCHAR(30)  NOT NULL,
- *      criado_em   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
- *      UNIQUE KEY uq_usuario_placa (id_usuario, placa),
- *      INDEX idx_usuario (id_usuario)
- *      -- , FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
- *  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
- *
- * Se você já criou a tabela com a primeira versão deste arquivo, ajuste-a assim:
- *
- *  ALTER TABLE veiculos
- *      CHANGE id id_veiculo INT UNSIGNED AUTO_INCREMENT,
- *      CHANGE cliente_id id_usuario INT UNSIGNED NOT NULL,
- *      ADD COLUMN tipo ENUM('Carro','Moto') NOT NULL DEFAULT 'Carro' AFTER id_usuario,
- *      ADD COLUMN cor VARCHAR(30) NOT NULL DEFAULT 'Não informada' AFTER ano;
  */
 
 declare(strict_types=1);
@@ -43,11 +9,7 @@ declare(strict_types=1);
 session_start();
 require_once __DIR__ . '/conexao.php';
 
-// Compatibilidade com o nome da variável de conexão
-if (!isset($pdo)) {
-    $pdo = $conexao ?? $conn ?? null;
-}
-if (!($pdo instanceof PDO)) {
+if (!isset($pdo) || !($pdo instanceof PDO)) {
     http_response_code(500);
     exit('Falha na conexão com o banco de dados.');
 }
@@ -77,13 +39,11 @@ function e(string $valor): string
 
 function formatarPlaca(string $placa): string
 {
-    // Padrão antigo: ABC-1234 | Mercosul: ABC1D23
     return preg_match('/^[A-Z]{3}[0-9]{4}$/', $placa)
         ? substr($placa, 0, 3) . '-' . substr($placa, 3)
         : $placa;
 }
 
-// CSRF
 if (empty($_SESSION['csrf'])) {
     $_SESSION['csrf'] = bin2hex(random_bytes(32));
 }
@@ -117,7 +77,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'modelo' => $modelo, 'ano' => $anoRaw, 'cor' => $cor,
         ];
 
-        // Validação
         $anoMax = (int) date('Y') + 1;
 
         if (!in_array($tipo, TIPOS_VEICULO, true)) {
@@ -143,10 +102,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $erros['cor'] = 'Selecione a cor do veículo.';
         }
 
-        // Duplicidade (mesmo usuário + mesma placa)
+        // Duplicidade na tabela 'veiculo' com 'id_cliente'
         if (!$erros) {
             $stmt = $pdo->prepare(
-                'SELECT COUNT(*) FROM veiculos WHERE id_usuario = :uid AND placa = :placa'
+                'SELECT COUNT(*) FROM veiculo WHERE id_cliente = :uid AND placa = :placa'
             );
             $stmt->execute([':uid' => $usuarioId, ':placa' => $placa]);
             if ((int) $stmt->fetchColumn() > 0) {
@@ -154,16 +113,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Persistência
+        // Persistência na tabela 'veiculo'
         if (!$erros) {
             try {
                 $stmt = $pdo->prepare(
-                    'INSERT INTO veiculos (id_usuario, tipo, placa, marca, modelo, ano, cor)
-                     VALUES (:uid, :tipo, :placa, :marca, :modelo, :ano, :cor)'
+                    'INSERT INTO veiculo (id_cliente, placa, marca, modelo, ano, cor)
+                     VALUES (:uid, :placa, :marca, :modelo, :ano, :cor)'
                 );
                 $stmt->execute([
                     ':uid'    => $usuarioId,
-                    ':tipo'   => $tipo,
                     ':placa'  => $placa,
                     ':marca'  => $marca,
                     ':modelo' => $modelo,
@@ -185,9 +143,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $veiculoId = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
         if ($veiculoId) {
             try {
-                // id_usuario na cláusula impede apagar veículo de outro usuário
                 $stmt = $pdo->prepare(
-                    'DELETE FROM veiculos WHERE id_veiculo = :id AND id_usuario = :uid'
+                    'DELETE FROM veiculo WHERE id_veiculo = :id AND id_cliente = :uid'
                 );
                 $stmt->execute([':id' => $veiculoId, ':uid' => $usuarioId]);
                 $_SESSION['flash'] = $stmt->rowCount()
@@ -195,7 +152,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     : ['tipo' => 'warning', 'msg' => 'Veículo não encontrado.'];
             } catch (PDOException $ex) {
                 error_log('[MecGo][garagem] ' . $ex->getMessage());
-                // Provável vínculo com atendimentos existentes (chave estrangeira)
                 $_SESSION['flash'] = ['tipo' => 'danger', 'msg' => 'Não foi possível remover este veículo (pode haver atendimentos vinculados).'];
             }
         }
@@ -205,13 +161,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ---------------------------------------------------------------
-// Listagem
+// Listagem (Tabela 'veiculo' e coluna 'id_cliente')
 // ---------------------------------------------------------------
 $stmt = $pdo->prepare(
-    'SELECT id_veiculo, tipo, placa, marca, modelo, ano, cor
-       FROM veiculos
-      WHERE id_usuario = :uid
-   ORDER BY criado_em DESC, id_veiculo DESC'
+    'SELECT id_veiculo, placa, marca, modelo, ano, cor
+       FROM veiculo
+      WHERE id_cliente = :uid
+   ORDER BY id_veiculo DESC'
 );
 $stmt->execute([':uid' => $usuarioId]);
 $veiculos = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -241,7 +197,7 @@ $abrirForm = !empty($erros) || empty($veiculos);
         }
         body {
             background: var(--mg-bg);
-            padding-bottom: 84px; /* espaço da barra inferior */
+            padding-bottom: 84px;
             -webkit-tap-highlight-color: transparent;
         }
         .mg-topbar {
@@ -284,7 +240,6 @@ $abrirForm = !empty($erros) || empty($veiculos);
             text-align: center;
         }
 
-        /* Seletor Carro/Moto (botões grandes para toque) */
         .tipo-opcao { position: absolute; opacity: 0; pointer-events: none; }
         .tipo-label {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -484,12 +439,12 @@ $abrirForm = !empty($erros) || empty($veiculos);
                 <article class="card mg-card veiculo-item mb-3">
                     <div class="card-body d-flex align-items-center gap-3 p-3">
                         <div class="veiculo-icone" aria-hidden="true">
-                            <i class="bi <?= $v['tipo'] === 'Moto' ? 'bi-scooter' : 'bi-car-front-fill' ?>"></i>
+                            <i class="bi bi-car-front-fill"></i>
                         </div>
                         <div class="flex-grow-1">
                             <div class="fw-bold"><?= e($v['marca']) ?> <?= e($v['modelo']) ?></div>
                             <div class="text-secondary small mb-2">
-                                <?= e($v['tipo']) ?> · <?= (int) $v['ano'] ?> · <?= e($v['cor']) ?>
+                                <?= (int) $v['ano'] ?> · <?= e($v['cor']) ?>
                             </div>
                             <span class="placa-badge"><?= e(formatarPlaca($v['placa'])) ?></span>
                         </div>
@@ -517,7 +472,6 @@ $abrirForm = !empty($erros) || empty($veiculos);
     </section>
 </main>
 
-<!-- Navegação inferior (mobile) -->
 <nav class="mg-bottom-nav d-flex" aria-label="Navegação principal">
     <a href="solicitar_socorro.php"><i class="bi bi-life-preserver"></i>Socorro</a>
     <a href="garagem.php" class="ativo"><i class="bi bi-car-front-fill"></i>Garagem</a>
@@ -526,7 +480,6 @@ $abrirForm = !empty($erros) || empty($veiculos);
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Máscara leve da placa: maiúsculas, sem símbolos, hífen no padrão antigo (ABC-1234)
     (function () {
         var campo = document.getElementById('placa');
         if (!campo) return;
