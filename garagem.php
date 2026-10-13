@@ -65,8 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ---------- Cadastrar ----------
     if ($acao === 'cadastrar') {
-        $tipo   = trim((string) ($_POST['tipo'] ?? ''));
-        $placa  = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', (string) ($_POST['placa'] ?? '')));
+        $tipo   = trim((string) ($_POST['tipo'] ?? 'Carro'));
+        // Limpa a placa deixando apenas letras e números (máximo 7 caracteres)
+        $placa  = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', (string) ($_POST['placa'] ?? '')), 0, 7));
         $marca  = trim(strip_tags((string) ($_POST['marca'] ?? '')));
         $modelo = trim(strip_tags((string) ($_POST['modelo'] ?? '')));
         $anoRaw = trim((string) ($_POST['ano'] ?? ''));
@@ -79,12 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $anoMax = (int) date('Y') + 1;
 
-        if (!in_array($tipo, TIPOS_VEICULO, true)) {
-            $erros['tipo'] = 'Selecione o tipo do veículo.';
-            $dados['tipo'] = 'Carro';
-        }
         if (!preg_match('/^([A-Z]{3}[0-9]{4}|[A-Z]{3}[0-9][A-Z][0-9]{2})$/', $placa)) {
-            $erros['placa'] = 'Placa inválida. Use ABC-1234 ou ABC1D23.';
+            $erros['placa'] = 'Placa inválida. Use ABC1D23 ou ABC1234.';
         }
         if (mb_strlen($marca) < 2 || mb_strlen($marca) > 50) {
             $erros['marca'] = 'Informe a marca (2 a 50 caracteres).';
@@ -102,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $erros['cor'] = 'Selecione a cor do veículo.';
         }
 
-        // Duplicidade na tabela 'veiculo' com 'id_cliente'
+        // Verifica duplicidade na tabela 'veiculo'
         if (!$erros) {
             $stmt = $pdo->prepare(
                 'SELECT COUNT(*) FROM veiculo WHERE id_cliente = :uid AND placa = :placa'
@@ -113,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Persistência na tabela 'veiculo'
+        // Insere na tabela 'veiculo' com tratamento para as colunas do banco
         if (!$erros) {
             try {
                 $stmt = $pdo->prepare(
@@ -132,9 +129,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: garagem.php');
                 exit;
             } catch (PDOException $ex) {
-                error_log('[MecGo][garagem] ' . $ex->getMessage());
-                $erros['geral'] = 'Não foi possível salvar o veículo. Tente novamente.';
-            }
+            error_log('[MecGo][garagem] ' . $ex->getMessage());
+            $erros['geral'] = 'Não foi possível salvar o veículo. Tente novamente.';
+        }
         }
     }
 
@@ -152,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     : ['tipo' => 'warning', 'msg' => 'Veículo não encontrado.'];
             } catch (PDOException $ex) {
                 error_log('[MecGo][garagem] ' . $ex->getMessage());
-                $_SESSION['flash'] = ['tipo' => 'danger', 'msg' => 'Não foi possível remover este veículo (pode haver atendimentos vinculados).'];
+                $_SESSION['flash'] = ['tipo' => 'danger', 'msg' => 'Não foi possível remover este veículo.'];
             }
         }
         header('Location: garagem.php');
@@ -161,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ---------------------------------------------------------------
-// Listagem (Tabela 'veiculo' e coluna 'id_cliente')
+// Listagem
 // ---------------------------------------------------------------
 $stmt = $pdo->prepare(
     'SELECT id_veiculo, placa, marca, modelo, ano, cor
@@ -356,9 +353,6 @@ $abrirForm = !empty($erros) || empty($veiculos);
                                 <label for="tipoMoto" class="tipo-label"><i class="bi bi-scooter"></i>Moto</label>
                             </div>
                         </div>
-                        <?php if (isset($erros['tipo'])): ?>
-                            <div class="text-danger small mt-1"><?= e($erros['tipo']) ?></div>
-                        <?php endif; ?>
                     </div>
 
                     <!-- Placa -->
@@ -366,7 +360,7 @@ $abrirForm = !empty($erros) || empty($veiculos);
                         <label for="placa" class="form-label fw-semibold">Placa</label>
                         <input type="text" id="placa" name="placa" maxlength="8"
                                class="form-control form-control-lg input-placa <?= isset($erros['placa']) ? 'is-invalid' : '' ?>"
-                               placeholder="ABC1D23" autocapitalize="characters" autocomplete="off"
+                               placeholder="XYZ1234 ou ABC1D23" autocapitalize="characters" autocomplete="off"
                                value="<?= e($dados['placa']) ?>" required>
                         <div class="invalid-feedback"><?= e($erros['placa'] ?? '') ?></div>
                     </div>
@@ -377,7 +371,7 @@ $abrirForm = !empty($erros) || empty($veiculos);
                             <label for="marca" class="form-label fw-semibold">Marca</label>
                             <input type="text" id="marca" name="marca" maxlength="50"
                                    class="form-control <?= isset($erros['marca']) ? 'is-invalid' : '' ?>"
-                                   placeholder="Ex.: Fiat" value="<?= e($dados['marca']) ?>" required>
+                                   placeholder="Ex.: BMW" value="<?= e($dados['marca']) ?>" required>
                             <div class="invalid-feedback"><?= e($erros['marca'] ?? '') ?></div>
                         </div>
                         <div class="col-5">
@@ -395,7 +389,7 @@ $abrirForm = !empty($erros) || empty($veiculos);
                         <label for="modelo" class="form-label fw-semibold">Modelo</label>
                         <input type="text" id="modelo" name="modelo" maxlength="80"
                                class="form-control <?= isset($erros['modelo']) ? 'is-invalid' : '' ?>"
-                               placeholder="Ex.: Uno Mille" value="<?= e($dados['modelo']) ?>" required>
+                               placeholder="Ex.: X4" value="<?= e($dados['modelo']) ?>" required>
                         <div class="invalid-feedback"><?= e($erros['modelo'] ?? '') ?></div>
                     </div>
 

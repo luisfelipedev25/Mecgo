@@ -134,6 +134,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Persistência na tabela 'usuario' (agora gravando aceite_lgpd_em com a data e hora atuais)
     if (!$erros) {
         try {
+            $pdo->beginTransaction();
+
             $stmt = $pdo->prepare(
                 'INSERT INTO usuario
                     (nome, email, cpf, telefone, senha, tipo, status, aceite_lgpd_em)
@@ -148,6 +150,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':hash'  => password_hash($senha, PASSWORD_DEFAULT),
             ]);
 
+            $idUsuario = (int) $pdo->lastInsertId();
+
+            // Insere também na tabela cliente para satisfazer a Chave Estrangeira do veiculo
+            $stmtCliente = $pdo->prepare('INSERT INTO cliente (id_cliente) VALUES (:id)');
+            $stmtCliente->execute([':id' => $idUsuario]);
+
+            $pdo->commit();
+
             $_SESSION['csrf'] = bin2hex(random_bytes(32));
             $_SESSION['flash'] = [
                 'tipo' => 'success',
@@ -156,6 +166,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: login_cliente.php');
             exit;
         } catch (PDOException $ex) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             if ($ex->getCode() === '23000') {
                 $erros['geral'] = 'E-mail ou CPF já cadastrado.';
             } else {
