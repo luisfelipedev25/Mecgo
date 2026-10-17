@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MecGo - Login Administrativo</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --brand-yellow: #f59e0b;
+            --brand-yellow-hover: #d97706;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(15, 23, 42, 0.9) 0px, transparent 50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        .login-card {
+            max-width: 420px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            background: #1e293b;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+            color: #f8fafc;
+        }
+
+        .brand-logo {
+            font-size: 2rem;
+            color: #ffffff;
+        }
+
+        .form-control {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+        }
+
+        .form-control:focus {
+            background-color: #0f172a;
+            border-color: var(--brand-yellow);
+            color: #ffffff;
+            box-shadow: 0 0 0 0.25rem rgba(245, 158, 11, 0.25);
+        }
+
+        .form-control::placeholder {
+            color: #64748b;
+        }
+
+        .btn-custom {
+            background-color: var(--brand-yellow);
+            color: #0f172a;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn-custom:hover {
+            background-color: var(--brand-yellow-hover);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .input-group-text {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            color: #94a3b8;
+            border-radius: 8px;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+        }
+
+        .input-group .input-group-text {
+            border-right: none;
+        }
+
+        /* Estilo personalizado para o alerta de erro */
+        .alert-danger {
+            background-color: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card login-card p-4 p-sm-5">
+    <!-- Cabeçalho -->
+    <div class="text-center mb-4">
+        <h2 class="fw-bold brand-logo mb-1">
+            <i class="bi bi-wrench-adjustable-circle-fill text-warning me-2"></i>Mec<span class="text-warning">Go</span>
+        </h2>
+        <p class="text-secondary small mb-0">Acesso Restrito ao Painel Administrativo</p>
+    </div>
+
+    <!-- Container de Alerta (Exibido dinamicamente via JS) -->
+    <div id="mensagem-erro" class="alert alert-danger alert-dismissible fade d-none" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span id="texto-erro">E-mail ou senha incorretos.</span>
+        <button type="button" class="btn-close btn-close-white" onclick="fecharAlerta()"></button>
+    </div>
+
+    <!-- Formulário HTML5 com Validação -->
+    <form id="loginForm" action="admin_dashboard.php" method="POST" class="needs-validation" novalidate>
+        <!-- Campo E-mail -->
+        <div class="mb-3">
+            <label for="email" class="form-label fw-semibold text-light">E-mail</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <input 
+                    type="email" 
+                    class="form-control" 
+                    id="email" 
+                    name="email" 
+                    required 
+                    placeholder="admin@mecgo.com.br"
+                    autocomplete="email">
+                <div class="invalid-feedback">
+                    Por favor, informe um e-mail válido.
+                </div>
+            </div>
+        </div>
+
+        <!-- Campo Senha -->
+        <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <label for="senha" class="form-label fw-semibold text-light mb-0">Senha</label>
+            </div>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                <input 
+                    type="password" 
+                    class="form-control" 
+                    id="senha" 
+                    name="senha" 
+                    required 
+                    minlength="4"
+                    placeholder="••••••••"
+                    autocomplete="current-password">
+                <div class="invalid-feedback">
+                    A senha é obrigatória.
+                </div>
+            </div>
+        </div>
+
+        <!-- Botão de Envio -->
+        <button type="submit" class="btn btn-custom w-100 fw-bold py-2 shadow-sm">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Entrar no Painel
+        </button>
+    </form>
+</div>
+
+<!-- Bootstrap 5 Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Lógica Front-end para substituir a verificação PHP
+    const loginForm = document.getElementById('loginForm');
+    const erroContainer = document.getElementById('mensagem-erro');
+    const textoErro = document.getElementById('texto-erro');
+
+    loginForm.addEventListener('submit', function (event) {
+        // Ativa a validação de estilos do Bootstrap
+        if (!loginForm.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+            loginForm.classList.add('was-validated');
+            return;
+        }
+
+        loginForm.classList.add('was-validated');
+
+        /* 
+           Opcional: Você pode simular a validação de login estática no front-end aqui.
+           Caso queira redirecionar diretamente ao enviar ou enviar via POST para um script backend.
+        */
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+
+        // Exemplo de verificação simples de demonstração:
+        /*
+        if (email !== "admin@mecgo.com.br" || senha !== "123456") {
+            event.preventDefault();
+            mostrarErro("E-mail ou senha incorretos.");
+        }
+        */
+    });
+
+    function mostrarErro(mensagem) {
+        textoErro.textContent = mensagem;
+        erroContainer.classList.remove('d-none');
+        erroContainer.classList.add('show');
+    }
+
+    function fecharAlerta() {
+        erroContainer.classList.remove('show');
+        erroContainer.classList.add('d-none');
+    }
+</script>
+</body>
+</html>
