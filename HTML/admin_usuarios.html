@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e66927">
+    <title>Usuários | Admin | MecGo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app admin sem-nav">
+
+    <header class="admin-topo">
+        <div class="admin-topo-linha">
+            <div class="brand">Mec<span>Go</span> <span class="selo-mini">Admin</span></div>
+            <a href="index.html" class="sair">Sair ➜</a>
+        </div>
+        <nav class="admin-menu" aria-label="Menu do administrador">
+            <a href="admin_dashboard.html">📊 Dashboard</a>
+            <a href="aprovar_prestadores.html">✅ Aprovações</a>
+            <a href="admin_usuarios.html" class="ativo">👥 Usuários</a>
+            <a href="admin_financeiro.html">💰 Financeiro</a>
+            <a href="admin_disputas.html">⚖️ Disputas</a>
+        </nav>
+    </header>
+
+    <main class="content admin-conteudo">
+        <div class="cabecalho-lista">
+            <h1 class="admin-titulo" style="margin:0">👥 Gestão de usuários</h1>
+            <span class="badge badge-categoria">6 contas</span>
+        </div>
+        <p class="dica" style="margin:0 .25rem 1rem">Suspenda ou bloqueie perfis que descumprirem as regras da plataforma.</p>
+        <div class="usr-lista">
+            <article class="card usr">
+                <input type="radio" name="u1" id="u1a" class="us-input us-ativo" checked>
+                <input type="radio" name="u1" id="u1s" class="us-input us-susp">
+                <input type="radio" name="u1" id="u1b" class="us-input us-bloq">
+                <div class="usr-topo"><div><h2>João Gomes</h2><div class="usr-meta">Motorista · 📍 Teresina, PI</div></div></div>
+                <div class="usr-estado">
+                    <span class="badge badge-ativo e e-ativo">Ativo</span>
+                    <span class="badge badge-susp e e-susp">Suspenso</span>
+                    <span class="badge badge-bloq e e-bloq">Bloqueado</span>
+                </div>
+                <div class="usr-acoes">
+                    <label for="u1a" class="btn btn-contorno">Reativar</label>
+                    <label for="u1s" class="btn btn-aviso">Suspender</label>
+                    <label for="u1b" class="btn btn-perigo">Bloquear</label>
+                </div>
+            </article>
+            <article class="card usr">
+                <input type="radio" name="u2" id="u2a" class="us-input us-ativo" checked>
+                <input type="radio" name="u2" id="u2s" class="us-input us-susp">
+                <input type="radio" name="u2" id="u2b" class="us-input us-bloq">
+                <div class="usr-topo"><div><h2>Maria Souza</h2><div class="usr-meta">Motorista · 📍 Timon, MA</div></div></div>
+                <div class="usr-estado">
+                    <span class="badge badge-ativo e e-ativo">Ativo</span>
+                    <span class="badge badge-susp e e-susp">Suspenso</span>
+                    <span class="badge badge-bloq e e-bloq">Bloqueado</span>
+                </div>
+                <div class="usr-acoes">
+                    <label for="u2a" class="btn btn-contorno">Reativar</label>
+                    <label for="u2s" class="btn btn-aviso">Suspender</label>
+                    <label for="u2b" class="btn btn-perigo">Bloquear</label>
+                </div>
+            </article>
+            <article class="card usr">
+                <input type="radio" name="u3" id="u3a" class="us-input us-ativo" checked>
+                <input type="radio" name="u3" id="u3s" class="us-input us-susp">
+                <input type="radio" name="u3" id="u3b" class="us-input us-bloq">
+                <div class="usr-topo"><div><h2>AutoCar Prime</h2><div class="usr-meta">Prestador · Guincho · 📍 Teresina, PI</div></div></div>
+                <div class="usr-estado">
+                    <span class="badge badge-ativo e e-ativo">Ativo</span>
+                    <span class="badge badge-susp e e-susp">Suspenso</span>
+                    <span class="badge badge-bloq e e-bloq">Bloqueado</span>
+                </div>
+                <div class="usr-acoes">
+                    <label for="u3a" class="btn btn-contorno">Reativar</label>
+                    <label for="u3s" class="btn btn-aviso">Suspender</label>
+                    <label for="u3b" class="btn btn-perigo">Bloquear</label>
+                </div>
+            </article>
+            <article class="card usr">
+                <input type="radio" name="u4" id="u4a" class="us-input us-ativo">
+                <input type="radio" name="u4" id="u4s" class="us-input us-susp" checked>
+                <input type="radio" name="u4" id="u4b" class="us-input us-bloq">
+                <div class="usr-topo"><div><h2>Marcos Eletricista</h2><div class="usr-meta">Prestador · Elétrica · 📍 Santos, SP</div></div></div>
+                <div class="usr-estado">
+                    <span class="badge badge-ativo e e-ativo">Ativo</span>
+                    <span class="badge badge-susp e e-susp">Suspenso</span>
+                    <span class="badge badge-bloq e e-bloq">Bloqueado</span>
+                </div>
+                <div class="usr-acoes">
+                    <label for="u4a" class="btn btn-contorno">Reativar</label>
+                    <label for="u4s" class="btn btn-aviso">Suspender</label>
+                    <label for="u4b" class="btn btn-perigo">Bloquear</label>
+                </div>
+            </article>
+            <article class="card usr">
+                <input type="radio" name="u5" id="u5a" class="us-input us-ativo" checked>
+                <input type="radio" name="u5" id="u5s" class="us-input us-susp">
+                <input type="radio" name="u5" id="u5b" class="us-input us-bloq">
+                <div class="usr-topo"><div><h2>Oficina Express</h2><div class="usr-meta">Prestador · Mecânico móvel · 📍 Campinas, SP</div></div></div>
+                <div class="usr-estado">
+                    <span class="badge badge-ativo e e-ativo">Ativo</span>
+                    <span class="badge badge-susp e e-susp">Suspenso</span>
+                    <span class="badge badge-bloq e e-bloq">Bloqueado</span>
+                </div>
+                <div class="usr-acoes">
+                    <label for="u5a" class="btn btn-contorno">Reativar</label>
+                    <label for="u5s" class="btn btn-aviso">Suspender</label>
+                    <label for="u5b" class="btn btn-perigo">Bloquear</label>
+                </div>
+            </article>
+            <article class="card usr">
+                <input type="radio" name="u6" id="u6a" class="us-input us-ativo">
+                <input type="radio" name="u6" id="u6s" class="us-input us-susp">
+                <input type="radio" name="u6" id="u6b" class="us-input us-bloq" checked>
+                <div class="usr-topo"><div><h2>Carlos Pereira</h2><div class="usr-meta">Motorista · 📍 Teresina, PI</div></div></div>
+                <div class="usr-estado">
+                    <span class="badge badge-ativo e e-ativo">Ativo</span>
+                    <span class="badge badge-susp e e-susp">Suspenso</span>
+                    <span class="badge badge-bloq e e-bloq">Bloqueado</span>
+                </div>
+                <div class="usr-acoes">
+                    <label for="u6a" class="btn btn-contorno">Reativar</label>
+                    <label for="u6s" class="btn btn-aviso">Suspender</label>
+                    <label for="u6b" class="btn btn-perigo">Bloquear</label>
+                </div>
+            </article>
+        </div>
+    </main>
+</div>
+</body>
+</html>

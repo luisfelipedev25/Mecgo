@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e66927">
+    <title>Perfil | MecGo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app branco">
+
+    <header class="topo-app">
+        <a href="inicio.html" class="voltar">‹ Voltar</a>
+        <h1>Perfil</h1>
+        <span class="direita"></span>
+    </header>
+
+    <main class="content">
+
+        <div class="perfil-topo">
+            <div class="foto-perfil" aria-hidden="true">🧑<span class="editar">📷</span></div>
+            <h2>João Gomes</h2>
+            <span class="sub-perfil">Motorista</span>
+        </div>
+
+        <form action="perfil.html" method="get" class="campo-caixa">
+            <div class="campo"><label for="em">E-mail</label><input type="text" id="em" value="gomesjoao@gmail.com"></div>
+            <div class="campo"><label for="tel">Telefone</label><input type="tel" id="tel" value="+55 (86) 91234-5678"></div>
+            <div class="campo"><label for="gen">Gênero</label>
+                <select id="gen"><option>Homem</option><option>Mulher</option><option>Prefiro não informar</option></select></div>
+            <div class="campo"><label for="end">Endereço</label><input type="text" id="end" placeholder="Endereço"></div>
+            <button type="submit" class="btn btn-ouro">Confirmar</button>
+        </form>
+
+        <ul class="menu-perfil">
+            <li><a href="garagem.html">🚗 Minha garagem <span class="seta">›</span></a></li>
+            <li><a href="historico.html">🧾 Histórico de serviços <span class="seta">›</span></a></li>
+            <li><a href="index.html">↪ Sair da conta <span class="seta">›</span></a></li>
+        </ul>
+
+    </main>
+
+    <nav class="nav-inferior cinco" aria-label="Navegação principal">
+        <a href="perfil.html" class="ativo"><span class="ico">👤</span>Perfil</a>
+        <a href="servicos.html"><span class="ico">🔧</span>Serviços</a>
+        <a href="inicio.html"><span class="ico">🏠</span>Início</a>
+        <a href="ofertas.html"><span class="ico">🏷️</span>Ofertas</a>
+        <a href="notificacoes.html"><span class="ico">🔔</span>Notificações<span class="ponto-notif"></span></a>
+    </nav>
+</div>
+</body>
+</html>

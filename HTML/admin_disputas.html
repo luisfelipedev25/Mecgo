@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e66927">
+    <title>Disputas | Admin | MecGo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app admin sem-nav">
+
+    <header class="admin-topo">
+        <div class="admin-topo-linha">
+            <div class="brand">Mec<span>Go</span> <span class="selo-mini">Admin</span></div>
+            <a href="index.html" class="sair">Sair ➜</a>
+        </div>
+        <nav class="admin-menu" aria-label="Menu do administrador">
+            <a href="admin_dashboard.html">📊 Dashboard</a>
+            <a href="aprovar_prestadores.html">✅ Aprovações</a>
+            <a href="admin_usuarios.html">👥 Usuários</a>
+            <a href="admin_financeiro.html">💰 Financeiro</a>
+            <a href="admin_disputas.html" class="ativo">⚖️ Disputas</a>
+        </nav>
+    </header>
+
+    <main class="content admin-conteudo">
+        <div class="cabecalho-lista">
+            <h1 class="admin-titulo" style="margin:0">⚖️ Disputas e suporte</h1>
+            <span class="badge badge-aguardando">2 abertas</span>
+        </div>
+        <p class="dica" style="margin:0 .25rem 1rem">Medie chamados contestados e decida o destino do valor em custódia.</p>
+        <div class="usr-lista">
+            <article class="card disputa" style="position:relative">
+                <input type="radio" name="r1" id="r1-0" class="res-input" checked>
+                <input type="radio" name="r1" id="r1-1" class="res-input res-1">
+                <input type="radio" name="r1" id="r1-2" class="res-input res-2">
+                <input type="radio" name="r1" id="r1-3" class="res-input res-3">
+                <div class="disputa-topo"><div><h2>Chamado #1042 · Troca de pneu</h2><span class="usr-meta">Cliente contesta · valor R$ 120,00</span></div><span class="badge badge-aguardando">Aberta</span></div>
+                <div class="partes"><div><strong>Cliente</strong><br>João Gomes</div><div><strong>Prestador</strong><br>AutoCar Prime</div></div>
+                <p style="margin:.4rem 0;font-size:.9rem"><strong>Motivo:</strong> Pneu voltou a esvaziar no dia seguinte; cliente pede estorno.</p>
+                <details><summary>Ver conversa do chat</summary><div class="trecho">17:17 Prestador: Olá, qual o problema?<br>17:18 Cliente: Pneu furado.<br>17:40 Prestador: Serviço concluído.</div></details>
+                <div class="res-opcoes">
+                    <label for="r1-1">Estornar cliente</label>
+                    <label for="r1-2">Liberar ao prestador</label>
+                    <label for="r1-3">Pedir mais info</label>
+                </div>
+                <p class="res-msg res-m1">✔ Estorno ao cliente registrado</p>
+                <p class="res-msg res-m2">✔ Valor liberado ao prestador</p>
+                <p class="res-msg res-m3">✔ Informações solicitadas às partes</p>
+            </article>
+            <article class="card disputa" style="position:relative">
+                <input type="radio" name="r2" id="r2-0" class="res-input" checked>
+                <input type="radio" name="r2" id="r2-1" class="res-input res-1">
+                <input type="radio" name="r2" id="r2-2" class="res-input res-2">
+                <input type="radio" name="r2" id="r2-3" class="res-input res-3">
+                <div class="disputa-topo"><div><h2>Chamado #1027 · Pane elétrica</h2><span class="usr-meta">Prestador contesta · valor R$ 90,00</span></div><span class="badge badge-aguardando">Aberta</span></div>
+                <div class="partes"><div><strong>Cliente</strong><br>Marcos Eletricista</div><div><strong>Prestador</strong><br>João Gomes</div></div>
+                <p style="margin:.4rem 0;font-size:.9rem"><strong>Motivo:</strong> Prestador diz que o cliente cancelou após o deslocamento.</p>
+                <details><summary>Ver conversa do chat</summary><div class="trecho">17:17 Prestador: Olá, qual o problema?<br>17:18 Cliente: Pneu furado.<br>17:40 Prestador: Serviço concluído.</div></details>
+                <div class="res-opcoes">
+                    <label for="r2-1">Estornar cliente</label>
+                    <label for="r2-2">Liberar ao prestador</label>
+                    <label for="r2-3">Pedir mais info</label>
+                </div>
+                <p class="res-msg res-m1">✔ Estorno ao cliente registrado</p>
+                <p class="res-msg res-m2">✔ Valor liberado ao prestador</p>
+                <p class="res-msg res-m3">✔ Informações solicitadas às partes</p>
+            </article>
+        </div>
+    </main>
+</div>
+</body>
+</html>

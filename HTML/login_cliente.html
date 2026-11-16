@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e66927">
+    <title>Entrar | MecGo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app sem-nav">
+
+    <header class="topbar centro">
+        <div class="brand grande">Mec<span>Go</span></div>
+        <p class="sub">Socorro mecânico quando você mais precisa.</p>
+    </header>
+
+    <main class="content">
+
+        <div class="alert alert-success" role="status">
+            Conta criada com sucesso! Faça login para continuar.
+        </div>
+
+        <section class="card">
+            <h1 style="font-size:1.2rem; margin-bottom:1rem;">Entrar na sua conta</h1>
+
+            <form action="solicitar_socorro.html" method="get">
+                <div class="campo">
+                    <label for="identificador">E-mail ou CPF</label>
+                    <input type="text" id="identificador" name="identificador"
+                           placeholder="voce@email.com ou 000.000.000-00"
+                           autocomplete="username" autocapitalize="none" required>
+                </div>
+
+                <div class="campo">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha"
+                           placeholder="Sua senha" autocomplete="current-password" required>
+                </div>
+
+                <p class="esqueci"><a href="#">Esqueci minha senha</a></p>
+
+                <button type="submit" class="btn">🔐 Entrar</button>
+            </form>
+        </section>
+
+        <p class="rodape-link">
+            Ainda não tem conta? <a href="cadastro_cliente.html">Criar conta</a>
+        </p>
+    </main>
+</div>
+</body>
+</html>

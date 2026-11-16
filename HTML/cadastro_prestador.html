@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e66927">
+    <title>Cadastro de Prestador | MecGo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app sem-nav">
+
+    <header class="topbar centro">
+        <div class="brand grande">Mec<span>Go</span></div>
+        <span class="selo">Área do Prestador</span>
+        <h1>Cadastre-se como prestador</h1>
+        <p class="sub">Mecânicos, eletricistas, chaveiros, guinchos e oficinas.</p>
+    </header>
+
+    <main class="content">
+
+        <div class="alert alert-info" role="note">
+            Depois do envio, a equipe MecGo analisa seu CPF/CNPJ e seu portfólio antes de ativar a conta.
+        </div>
+
+        <section class="card">
+            <form action="index.html" method="get">
+
+                <!-- 1. Dados pessoais -->
+                <h2 class="secao-form">Seus dados</h2>
+
+                <div class="campo">
+                    <label for="nome">Nome completo</label>
+                    <input type="text" id="nome" name="nome" maxlength="100"
+                           placeholder="Seu nome" autocomplete="name" required>
+                </div>
+
+                <div class="campo">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" maxlength="120"
+                           placeholder="voce@email.com" autocomplete="email" required>
+                </div>
+
+                <div class="campo">
+                    <label for="cpf">CPF</label>
+                    <input type="text" id="cpf" name="cpf" maxlength="14"
+                           inputmode="numeric" placeholder="000.000.000-00" required>
+                </div>
+
+                <div class="campo">
+                    <label for="telefone">Telefone (WhatsApp)</label>
+                    <input type="tel" id="telefone" name="telefone" maxlength="15"
+                           placeholder="(86) 91234-5678" autocomplete="tel-national" required>
+                </div>
+
+                <!-- 2. Oficina / empresa -->
+                <h2 class="secao-form">Oficina ou empresa</h2>
+
+                <div class="campo">
+                    <label for="empresa">Nome da oficina <span class="opcional">(opcional)</span></label>
+                    <input type="text" id="empresa" name="empresa" maxlength="100"
+                           placeholder="Ex.: Oficina do Zé">
+                </div>
+
+                <div class="campo">
+                    <label for="cnpj">CNPJ <span class="opcional">(opcional)</span></label>
+                    <input type="text" id="cnpj" name="cnpj" maxlength="18"
+                           inputmode="numeric" placeholder="00.000.000/0000-00">
+                </div>
+
+                <!-- 3. Atuação -->
+                <h2 class="secao-form">Como você atua</h2>
+
+                <div class="campo">
+                    <span class="rotulo">Categorias de atendimento</span>
+                    <div class="escolhas">
+                        <div class="escolha">
+                            <input type="checkbox" id="cat_pneu" name="categoria[]" value="pneu" checked>
+                            <label for="cat_pneu"><span class="ico">🛞</span>Pneus</label>
+                        </div>
+                        <div class="escolha">
+                            <input type="checkbox" id="cat_bateria" name="categoria[]" value="bateria">
+                            <label for="cat_bateria"><span class="ico">🔋</span>Bateria e elétrica</label>
+                        </div>
+                        <div class="escolha">
+                            <input type="checkbox" id="cat_guincho" name="categoria[]" value="guincho">
+                            <label for="cat_guincho"><span class="ico">🚛</span>Guincho</label>
+                        </div>
+                        <div class="escolha">
+                            <input type="checkbox" id="cat_mecanica" name="categoria[]" value="mecanica">
+                            <label for="cat_mecanica"><span class="ico">⚙️</span>Mecânica geral</label>
+                        </div>
+                        <div class="escolha">
+                            <input type="checkbox" id="cat_chaveiro" name="categoria[]" value="chaveiro">
+                            <label for="cat_chaveiro"><span class="ico">🔑</span>Chaveiro veicular</label>
+                        </div>
+                        <div class="escolha">
+                            <input type="checkbox" id="cat_inspecao" name="categoria[]" value="inspecao">
+                            <label for="cat_inspecao"><span class="ico">🔍</span>Inspeção preventiva</label>
+                        </div>
+                    </div>
+                    <p class="dica">Marque todas as que você atende.</p>
+                </div>
+
+                <div class="campo">
+                    <label for="raio">Raio de atendimento</label>
+                    <select id="raio" name="raio" required>
+                        <option value="5">Até 5 km</option>
+                        <option value="10">Até 10 km</option>
+                        <option value="15">Até 15 km</option>
+                        <option value="20">Até 20 km</option>
+                        <option value="30" selected>Até 30 km</option>
+                    </select>
+                    <p class="dica">Você só recebe chamados dentro dessa distância.</p>
+                </div>
+
+                <div class="campo">
+                    <label for="bio">Sobre você <span class="opcional">(opcional)</span></label>
+                    <textarea id="bio" name="bio" rows="3" maxlength="500"
+                              placeholder="Conte sua experiência, anos de profissão, equipamentos..."></textarea>
+                </div>
+
+                <!-- 4. Fotos -->
+                <h2 class="secao-form">Fotos</h2>
+
+                <div class="campo">
+                    <label for="foto">Foto de perfil <span class="opcional">(opcional)</span></label>
+                    <input type="file" id="foto" name="foto" accept="image/*">
+                </div>
+
+                <div class="campo">
+                    <label for="portfolio">Portfólio</label>
+                    <input type="file" id="portfolio" name="portfolio[]" accept="image/*" multiple required>
+                    <p class="dica">Envie pelo menos 1 foto de um serviço seu (oficina, ferramentas ou trabalho feito).</p>
+                </div>
+
+                <!-- 5. Acesso -->
+                <h2 class="secao-form">Acesso</h2>
+
+                <div class="campo">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" minlength="8" maxlength="72"
+                           placeholder="Mínimo 8 caracteres" autocomplete="new-password" required>
+                    <p class="dica">Use letras e números.</p>
+                </div>
+
+                <div class="campo">
+                    <label for="confirma_senha">Confirmar senha</label>
+                    <input type="password" id="confirma_senha" name="confirma_senha" minlength="8" maxlength="72"
+                           placeholder="Repita a senha" autocomplete="new-password" required>
+                </div>
+
+                <div class="check">
+                    <input type="checkbox" id="lgpd" name="lgpd" value="1" required>
+                    <label for="lgpd">
+                        Concordo com o tratamento dos meus dados pessoais (nome, CPF/CNPJ, telefone e
+                        localização) para a prestação do serviço, conforme a LGPD.
+                    </label>
+                </div>
+
+                <button type="submit" class="btn">🛠️ Enviar cadastro</button>
+            </form>
+        </section>
+
+        <p class="rodape-link">
+            Já tem conta? <a href="index.html">Entrar</a>
+        </p>
+    </main>
+</div>
+</body>
+</html>
