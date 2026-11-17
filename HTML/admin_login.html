@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e66927">
+    <title>Login Administrativo | MecGo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app sem-nav">
+
+    <header class="topbar centro">
+        <div class="brand grande">Mec<span>Go</span></div>
+        <span class="selo">Painel Administrativo</span>
+        <p class="sub">Acesso restrito à equipe gestora.</p>
+    </header>
+
+    <main class="content">
+        <section class="card">
+            <h1 style="font-size:1.2rem; margin-bottom:1rem;">Entrar no painel</h1>
+
+            <form action="admin_dashboard.html" method="get">
+                <div class="campo">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" required
+                           placeholder="admin@mecgo.com.br" autocomplete="email">
+                </div>
+
+                <div class="campo">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" required minlength="4"
+                           placeholder="••••••••" autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn">🔐 Entrar no painel</button>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

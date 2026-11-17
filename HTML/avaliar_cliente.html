@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e66927">
+    <title>Avaliar cliente | MecGo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app branco sem-nav">
+
+    <header class="topo-app">
+        <a href="painel_chamados.html" class="voltar">‹ Voltar</a>
+        <h1>Avaliar cliente</h1>
+        <span class="direita"></span>
+    </header>
+
+    <main class="content">
+        <section class="card centro-txt">
+            <h2 style="margin:0;font-size:1.2rem">Como foi atender João Gomes?</h2>
+            <p class="dica">Troca de pneu · serviço concluído</p>
+            <form action="painel_chamados.html" method="get">
+                <div class="estrelas" role="radiogroup" aria-label="Nota de 1 a 5">
+            <input type="radio" name="nota" id="e5" value="5" checked><label for="e5">★</label>
+            <input type="radio" name="nota" id="e4" value="4"><label for="e4">★</label>
+            <input type="radio" name="nota" id="e3" value="3"><label for="e3">★</label>
+            <input type="radio" name="nota" id="e2" value="2"><label for="e2">★</label>
+            <input type="radio" name="nota" id="e1" value="1"><label for="e1">★</label>
+                </div>
+                <div class="campo" style="text-align:left"><label for="com">Comentário (opcional)</label><textarea id="com" name="comentario" placeholder="Conte como foi..."></textarea></div>
+                <button type="submit" class="btn">Enviar avaliação</button>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

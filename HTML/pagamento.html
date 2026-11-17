@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e66927">
+    <title>Pagamento | MecGo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app branco">
+
+    <header class="topo-app">
+        <a href="orcamento.html" class="voltar">‹ Voltar</a>
+        <h1>Pagamento</h1>
+        <span class="direita"></span>
+    </header>
+
+    <main class="content">
+
+        <section class="card">
+            <h2 class="titulo-secao" style="margin-left:0">Resumo</h2>
+            <ul class="linhas">
+                <li><span>Troca de pneu · AutoCar Prime</span><span>R$ 120,00</span></li>
+                <li class="menos"><span>Taxa de intermediação MecGo (10%)</span><span>R$ 12,00</span></li>
+                <li class="menos"><span>Valor líquido do prestador</span><span>R$ 108,00</span></li>
+                <li class="total"><span>Total a pagar</span><span>R$ 120,00</span></li>
+            </ul>
+        </section>
+
+        <input type="radio" name="pg" id="pg-pix" class="pg-input pg-pix" checked>
+        <input type="radio" name="pg" id="pg-cartao" class="pg-input pg-cartao">
+
+        <p class="rotulo-tipo">Forma de pagamento</p>
+        <div class="tipo-abas dois">
+            <label for="pg-pix"><span class="ico">⚡</span>PIX</label>
+            <label for="pg-cartao"><span class="ico">💳</span>Cartão de crédito</label>
+        </div>
+
+        <div class="painel-pg painel-pix centro-txt">
+            <div class="qr" role="img" aria-label="QR Code de exemplo"><i></i></div>
+            <div class="copia-cola">00020126580014br.gov.bcb.pix0136mecgo-exemplo-0000-0000-000052040000530398654051200.00</div>
+        </div>
+
+        <div class="painel-pg painel-cartao">
+            <div class="campo"><label for="num">Número do cartão</label><input type="text" id="num" placeholder="0000 0000 0000 0000" inputmode="numeric"></div>
+            <div class="campo"><label for="nome">Nome impresso</label><input type="text" id="nome" placeholder="JOAO G SILVA"></div>
+            <div class="grade-2">
+                <div class="campo"><label for="val">Validade</label><input type="text" id="val" placeholder="MM/AA"></div>
+                <div class="campo"><label for="cvv">CVV</label><input type="text" id="cvv" placeholder="000" inputmode="numeric"></div>
+            </div>
+        </div>
+
+        <p class="aviso-custodia">🔒 O mecânico só sai depois do pagamento. O valor fica em custódia até você confirmar a conclusão do serviço. (Simulação: nenhum pagamento real é feito.)</p>
+        <a href="acompanhar.html" class="btn">Pagar R$ 120,00</a>
+
+    </main>
+
+    <nav class="nav-inferior cinco" aria-label="Navegação principal">
+        <a href="perfil.html"><span class="ico">👤</span>Perfil</a>
+        <a href="servicos.html"><span class="ico">🔧</span>Serviços</a>
+        <a href="inicio.html" class="ativo"><span class="ico">🏠</span>Início</a>
+        <a href="notificacoes.html"><span class="ico">🔔</span>Notificações<span class="ponto-notif"></span></a>
+    </nav>
+</div>
+</body>
+</html>

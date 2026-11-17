@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e66927">
+    <title>Demonstração | MecGo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="demo-body">
+
+<header class="demo-topo">
+    <div class="brand">Mec<span>Go</span> <span class="selo-mini">Demonstração</span></div>
+    <p>Dois celulares na mesma tela: clique no motorista, depois no prestador, seguindo o roteiro.</p>
+    <a href="telas.html">Mapa das telas</a> · <a href="index.html">Abrir o app</a>
+</header>
+
+<main class="demo-palco">
+    <section class="demo-celular">
+        <h2>📱 Motorista <small>João Gomes</small></h2>
+        <iframe src="inicio.html" title="Celular do motorista" loading="eager"></iframe>
+    </section>
+
+    <section class="demo-roteiro">
+        <h2>Roteiro</h2>
+        <ol>
+            <li><span class="quem m">Motorista</span> Início → <em>Pedir socorro</em> → <em>Pneu furado</em> → envia o chamado.</li>
+            <li><span class="quem p">Prestador</span> No painel aparece o pedido de pneu furado → <em>Enviar orçamento</em>.</li>
+            <li><span class="quem m">Motorista</span> Recebe o orçamento → <em>Aceitar e pagar agora</em> → <em>Pagar</em>. O valor fica em custódia.</li>
+            <li><span class="quem p">Prestador</span> Em <em>Mensagens</em>, vê o pagamento confirmado → <em>Ver rota até o cliente</em>.</li>
+            <li><span class="quem m">Motorista</span> Acompanha o mecânico chegando. Nos dois celulares, use <em>Simular 1, 2, 3, 4</em>.</li>
+            <li><span class="quem p">Prestador</span> <em>Cheguei ao local</em> → atualiza o status até <em>Concluído</em>.</li>
+            <li><span class="quem m">Motorista</span> No chat, <em>Confirmar conclusão</em> (libera o pagamento) → avalia o atendimento.</li>
+            <li><span class="quem p">Prestador</span> <em>Ganhos</em> → vê o repasse liberado e avalia o cliente.</li>
+        </ol>
+        <p class="dica">É uma simulação: as duas telas não se comunicam de verdade. Para isso, seria preciso PHP e banco de dados.</p>
+        <a href="demo.html" class="btn btn-contorno">Reiniciar demonstração</a>
+    </section>
+
+    <section class="demo-celular">
+        <h2>🛠️ Prestador <small>AutoCar Prime</small></h2>
+        <iframe src="painel_chamados.html" title="Celular do prestador" loading="eager"></iframe>
+    </section>
+</main>
+
+</body>
+</html>

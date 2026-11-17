@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e66927">
+    <title>Chat | MecGo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app branco chat-cli sem-nav">
+
+    <header class="chat-topo">
+        <a href="acompanhar.html" class="voltar" aria-label="Voltar">‹</a>
+        <div class="av" aria-hidden="true">🛠️</div>
+        <div><strong>AutoCar Prime</strong><small>Mecânico · em atendimento</small></div>
+    </header>
+
+    <main class="content solto" style="padding-top:.4rem">
+        <p class="data-chat">18 mar 2026</p>
+        <p class="aviso-chat">Mensagem automática<br>Não aceite cobrança fora do app e nunca compartilhe dados pessoais em conversas de chat ou telefone.</p>
+
+        <div class="mensagens">
+            <div class="msg-sistema">Pagamento de R$ 120,00 recebido e retido em custódia</div>
+            <div class="msg recebida">Olá, bom dia, qual o seu problema?<small>17:17 ✓✓</small></div>
+            <div class="msg enviada">Pneu dianteiro furado, estou na Av. Miguel Rosa.<small>17:18 ✓✓</small></div>
+            <div class="msg recebida">Já estou a caminho, chego em 5 min.<small>17:19 ✓✓</small></div>
+            
+        </div>
+
+        <div class="faixa-confirma">
+            <p>Serviço finalizado? Confirme para liberar o pagamento ao prestador.</p>
+            <a href="avaliacao.html" class="btn">Confirmar conclusão</a>
+        </div>
+    </main>
+
+    <form class="chat-barra" action="chat_cliente.html" method="get">
+        <input type="text" name="mensagem" placeholder="Digite uma mensagem..." aria-label="Mensagem">
+        <button type="submit" class="btn" aria-label="Enviar">➤</button>
+    </form>
+</div>
+</body>
+</html>

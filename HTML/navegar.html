@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e66927">
+    <title>Rota até o cliente | MecGo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app mapa-tela">
+
+    <input type="radio" name="est" id="es1" class="est-input es1" checked>
+    <input type="radio" name="est" id="es2" class="est-input es2">
+    <input type="radio" name="est" id="es3" class="est-input es3">
+    <input type="radio" name="est" id="es4" class="est-input es4">
+
+    <div class="mapa-app" role="img" aria-label="Mapa ilustrativo com a rota até o cliente">
+        <a href="chat.html" class="voltar-flutuante">‹ Voltar</a>
+        <div class="sim" aria-label="Simular andamento">Simular
+            <label for="es1">1</label><label for="es2">2</label><label for="es3">3</label><label for="es4">4</label>
+        </div>
+
+        <div class="instrucao">
+            <span class="est e1"><strong>Siga em frente por 2 km</strong>Av. Frei Serafim · 12 min até o cliente</span>
+            <span class="est e2"><strong>Vire à direita em 300 m</strong>Av. Miguel Rosa · 5 min até o cliente</span>
+            <span class="est e3"><strong>Seu destino está à direita</strong>Em 200 m · 1 min</span>
+            <span class="est e4"><strong>Você chegou ao local do cliente</strong>Avise o cliente e inicie o atendimento</span>
+        </div>
+
+        <div class="cena larga" style="top:170px">
+            <span class="trajeto feito" style="left:40px;top:60px;width:107px;transform:rotate(27.6deg)"></span>
+            <span class="trajeto " style="left:134px;top:110px;width:83px;transform:rotate(27.6deg)"></span>
+            <span class="trajeto " style="left:208px;top:148px;width:47px;transform:rotate(27.6deg)"></span>
+            <span class="pino grande" style="left:218px;top:106px;background:#e11d48"><span>🚗</span></span>
+            <span class="pino grande mec azul"<span>🛠️</span></span>
+        </div>
+
+        <section class="folha" style="max-height:48%">
+            <p class="status-grande est e1">4,2 km · 12 min</p>
+            <p class="status-grande est e2">1,8 km · 5 min</p>
+            <p class="status-grande est e3">200 m · 1 min</p>
+            <p class="status-grande verde est e4">Chegou ao destino</p>
+            <div class="prest-folha" style="margin-bottom:.4rem">
+                <div class="foto" aria-hidden="true" style="flex-basis:48px;height:48px;font-size:1.4rem">🧑</div>
+                <div>
+                    <h2 style="font-size:1.05rem;margin:0">João Gomes</h2>
+                    <div class="nota-linha">Fiat Uno Mille · Prata · ABC-1234 · Pneu furado</div>
+                </div>
+            </div>
+            <div class="folha-acoes">
+                <a href="chat.html" class="btn btn-contorno">💬 Chat</a>
+                <a href="chat.html" class="btn">Cheguei ao local</a>
+            </div>
+        </section>
+    </div>
+
+    <nav class="nav-inferior" aria-label="Navegação principal">
+        <a href="painel_chamados.html" class="ativo"><span class="ico">🛠️</span>Chamados</a>
+        <a href="chat.html"><span class="ico">💬</span>Mensagens</a>
+        <a href="ganhos.html"><span class="ico">💰</span>Ganhos</a>
+        <a href="perfil_prestador.html"><span class="ico">👤</span>Perfil</a>
+    </nav>
+</div>
+</body>
+</html>

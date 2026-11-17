@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e66927">
+    <title>Avaliação | MecGo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app branco sem-nav">
+
+    <header class="topo-app">
+        <a href="chat_cliente.html" class="voltar">‹ Voltar</a>
+        <h1>Avaliação</h1>
+        <span class="direita"></span>
+    </header>
+
+    <main class="content">
+
+        <section class="card centro-txt">
+            <div class="foto-perfil" style="width:84px;height:84px;font-size:2.2rem;margin:0 auto .6rem;background:#fff">🛠️</div>
+            <h2 style="margin:0;font-size:1.2rem">Como foi o atendimento?</h2>
+            <p class="dica">AutoCar Prime · Troca de pneu</p>
+
+            <form action="inicio.html" method="get">
+                <div class="estrelas" role="radiogroup" aria-label="Nota de 1 a 5">
+            <input type="radio" name="nota" id="e5" value="5"><label for="e5" title="5 estrela(s)">★</label>
+            <input type="radio" name="nota" id="e4" value="4" checked><label for="e4" title="4 estrela(s)">★</label>
+            <input type="radio" name="nota" id="e3" value="3"><label for="e3" title="3 estrela(s)">★</label>
+            <input type="radio" name="nota" id="e2" value="2"><label for="e2" title="2 estrela(s)">★</label>
+            <input type="radio" name="nota" id="e1" value="1"><label for="e1" title="1 estrela(s)">★</label>
+                </div>
+                <div class="chips" style="justify-content:center">
+                    <span class="chip">Pontual</span><span class="chip">Educado</span><span class="chip">Preço justo</span><span class="chip">Resolveu rápido</span>
+                </div>
+                <div class="campo" style="text-align:left">
+                    <label for="com">Comentário (opcional)</label>
+                    <textarea id="com" name="comentario" placeholder="Conte como foi o serviço..."></textarea>
+                </div>
+                <button type="submit" class="btn">Enviar avaliação</button>
+            </form>
+        </section>
+        <p class="rodape-link"><a href="inicio.html">Avaliar depois</a></p>
+
+    </main>
+
+</div>
+</body>
+</html>

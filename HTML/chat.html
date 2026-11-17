@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e66927">
+    <title>Chat | MecGo Prestador</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+
+    <header class="topbar compacta">
+        <div class="topbar-linha">
+            <a href="painel_chamados.html" class="sair">‹ Chamados</a>
+            <span class="badge badge-andamento">Em deslocamento</span>
+        </div>
+        <div class="chat-id">
+            <div class="avatar" aria-hidden="true">M</div>
+            <div>
+                <div class="chat-nome">Marcos Oliveira</div>
+                <div class="sub">Fiat Uno Mille · ABC-1234 · Pneu furado</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="content solto">
+
+        <a href="navegar.html" class="btn btn-contorno" style="margin-bottom:1rem">🧭 Ver rota até o cliente</a>
+
+        <!-- Status do serviço -->
+        <section class="card">
+            <h2 class="titulo-secao" style="margin-left:0;">Status do serviço</h2>
+
+            <ol class="etapas">
+                <li class="atual">Em deslocamento</li>
+                <li>No local</li>
+                <li>Em atendimento</li>
+                <li>Concluído</li>
+            </ol>
+
+            <form action="chat.html" method="get">
+                <span class="rotulo">Atualizar para:</span>
+                <div class="escolhas">
+                    <div class="escolha">
+                        <input type="radio" id="st_desloc" name="status" value="deslocamento">
+                        <label for="st_desloc"><span class="ico">🚗</span>Em deslocamento</label>
+                    </div>
+                    <div class="escolha">
+                        <input type="radio" id="st_local" name="status" value="no_local" checked>
+                        <label for="st_local"><span class="ico">📍</span>No local</label>
+                    </div>
+                    <div class="escolha">
+                        <input type="radio" id="st_atend" name="status" value="atendimento">
+                        <label for="st_atend"><span class="ico">🔧</span>Em atendimento</label>
+                    </div>
+                    <div class="escolha">
+                        <input type="radio" id="st_concl" name="status" value="concluido">
+                        <label for="st_concl"><span class="ico">✅</span>Concluído</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" style="margin-top:1rem;">🔄 Atualizar status</button>
+            </form>
+
+            <p class="dica">
+                O cliente é avisado a cada mudança. O pagamento só é liberado quando você e
+                o cliente confirmam a conclusão do serviço.
+            </p>
+        </section>
+
+        <p class="aviso-chat">🔒 O chat fica ativo durante o atendimento e é bloqueado 48 h após a conclusão.</p>
+
+        <!-- Conversa -->
+        <section class="mensagens" aria-label="Mensagens">
+            <div class="msg-sistema">Hoje · 19:10</div>
+            <div class="msg-sistema">Marcos aceitou seu orçamento de R$ 120,00</div>
+            <div class="msg-sistema">Pagamento recebido e retido em custódia. Pode seguir até o cliente.</div>
+
+            <div class="msg recebida">
+                Boa noite! Consegue chegar rápido? Estou no acostamento da Av. Frei Serafim, perto do posto.
+                <small>19:12</small>
+            </div>
+            <div class="msg enviada">
+                Boa noite, Marcos! Já estou saindo, chego em uns 15 minutos.
+                <small>19:13</small>
+            </div>
+            <div class="msg recebida">
+                Perfeito. Estou com o pisca-alerta ligado, carro prata.
+                <small>19:14</small>
+            </div>
+            <div class="msg enviada">
+                Combinado. Você tem o estepe e o macaco aí?
+                <small>19:14</small>
+            </div>
+            <div class="msg recebida">
+                Tenho o estepe, mas a chave de roda não.
+                <small>19:15</small>
+            </div>
+            <div class="msg enviada">
+                Sem problema, levo a minha.
+                <small>19:15</small>
+            </div>
+
+            <div class="msg-sistema">Você atualizou o status: Em deslocamento</div>
+        </section>
+    </main>
+
+    <!-- Campo de mensagem fixo no rodapé -->
+    <form class="chat-barra" action="chat.html" method="get">
+        <input type="text" name="mensagem" placeholder="Digite uma mensagem..."
+               autocomplete="off" aria-label="Mensagem" required>
+        <button type="submit" class="btn" aria-label="Enviar mensagem">➤</button>
+    </form>
+</div>
+</body>
+</html>
