@@ -102,7 +102,7 @@ $veiculos = $stmtLista->fetchAll(PDO::FETCH_ASSOC);
             </div>
         <?php endif; ?>
 
-        <!-- Formulário de cadastro (abre automaticamente se ainda não tiver veículos) -->
+        <!-- Formulário de cadastro -->
         <details class="card" <?= count($veiculos) === 0 ? 'open' : '' ?>>
             <summary>
                 <span>➕ Adicionar veículo</span>
@@ -215,12 +215,11 @@ $veiculos = $stmtLista->fetchAll(PDO::FETCH_ASSOC);
         </section>
     </main>
 
-    <nav class="nav-inferior cinco" aria-label="Navegação principal">
+    <nav class="nav-inferior" aria-label="Navegação principal">
         <a href="perfil.php" class="ativo"><span class="ico">👤</span>Perfil</a>
         <a href="servicos.php"><span class="ico">🔧</span>Serviços</a>
         <a href="inicio.php"><span class="ico">🏠</span>Início</a>
-        <a href="acompanhar.php"><span class="ico">📍</span>Acompanhar</a>
-        <a href="../HTML/notificacoes.html"><span class="ico">🔔</span>Notificações<span class="ponto-notif"></span></a>
+        <a href="notificacoes.php"><span class="ico">🔔</span>Notificações<span class="ponto-notif"></span></a>
     </nav>
 </div>
 </body>

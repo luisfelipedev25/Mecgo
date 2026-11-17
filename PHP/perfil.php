@@ -114,12 +114,11 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
     </main>
 
-    <nav class="nav-inferior cinco" aria-label="Navegação principal">
+    <nav class="nav-inferior" aria-label="Navegação principal">
         <a href="perfil.php" class="ativo"><span class="ico">👤</span>Perfil</a>
         <a href="servicos.php"><span class="ico">🔧</span>Serviços</a>
         <a href="inicio.php"><span class="ico">🏠</span>Início</a>
-        <a href="acompanhar.php"><span class="ico">📍</span>Acompanhar</a>
-        <a href="../HTML/notificacoes.html"><span class="ico">🔔</span>Notificações<span class="ponto-notif"></span></a>
+        <a href="notificacoes.php"><span class="ico">🔔</span>Notificações<span class="ponto-notif"></span></a>
     </nav>
 </div>
 </body>

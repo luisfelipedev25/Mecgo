@@ -58,12 +58,11 @@ try {
         </section>
     </div>
 
-    <nav class="nav-inferior cinco" aria-label="Navegação principal">
-        <a href="../HTML/perfil.html"><span class="ico">👤</span>Perfil</a>
+    <nav class="nav-inferior" aria-label="Navegação principal">
+        <a href="perfil.php"><span class="ico">👤</span>Perfil</a>
         <a href="servicos.php"><span class="ico">🔧</span>Serviços</a>
         <a href="inicio.php" class="ativo"><span class="ico">🏠</span>Início</a>
-        <a href="../HTML/ofertas.html"><span class="ico">🏷️</span>Ofertas</a>
-        <a href="../HTML/notificacoes.html"><span class="ico">🔔</span>Notificações<span class="ponto-notif"></span></a>
+        <a href="notificacoes.php"><span class="ico">🔔</span>Notificações<span class="ponto-notif"></span></a>
     </nav>
 </div>
 </body>
