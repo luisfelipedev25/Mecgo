@@ -1,0 +1,156 @@
+<?php
+require_once 'conexao.php';
+
+$erro = '';
+$nome = '';
+$email = '';
+$cpf = '';
+$telefone = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nome = trim($_POST['nome'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $cpf = trim($_POST['cpf'] ?? '');
+    $telefone = trim($_POST['telefone'] ?? '');
+    $senha = $_POST['senha'] ?? '';
+    $confirma_senha = $_POST['confirma_senha'] ?? '';
+    $lgpd = isset($_POST['lgpd']);
+
+    if ($nome === '' || $email === '' || $cpf === '' || $telefone === '' || $senha === '') {
+        $erro = 'Preencha todos os campos obrigatórios.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $erro = 'Informe um e-mail válido.';
+    } elseif (strlen($senha) < 8) {
+        $erro = 'A senha deve ter no mínimo 8 caracteres.';
+    } elseif ($senha !== $confirma_senha) {
+        $erro = 'As senhas não conferem.';
+    } elseif (!$lgpd) {
+        $erro = 'Você precisa concordar com os termos da LGPD.';
+    } else {
+        try {
+            // Verifica se e-mail ou CPF já existem na tabela usuario
+            $stmtVerifica = $pdo->prepare('SELECT id_usuario FROM usuario WHERE email = ? OR cpf = ? LIMIT 1');
+            $stmtVerifica->execute([$email, $cpf]);
+
+            if ($stmtVerifica->fetch()) {
+                $erro = 'Este e-mail ou CPF já está cadastrado.';
+            } else {
+                $pdo->beginTransaction();
+
+                $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
+                // Insere na tabela usuario com as colunas exatas do seu banco
+                $sqlUsuario = 'INSERT INTO usuario (nome, email, cpf, telefone, senha, tipo, status, aceite_lgpd_em)
+                               VALUES (?, ?, ?, ?, ?, "CLIENTE", "ativo", NOW())';
+                $stmtUsuario = $pdo->prepare($sqlUsuario);
+                $stmtUsuario->execute([$nome, $email, $cpf, $telefone, $senhaHash]);
+
+                $idUsuario = $pdo->lastInsertId();
+
+                // Cria o vínculo na tabela cliente usando id_cliente = id_usuario
+                $sqlCliente = 'INSERT INTO cliente (id_cliente) VALUES (?)';
+                $stmtCliente = $pdo->prepare($sqlCliente);
+                $stmtCliente->execute([$idUsuario]);
+
+                $pdo->commit();
+
+                header('Location: index.php?cadastro=ok');
+                exit;
+            }
+        } catch (PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            $erro = 'Erro ao cadastrar conta: ' . $e->getMessage();
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e66927">
+    <title>Criar conta | MecGo</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="app sem-nav tema-laranja">
+
+    <header class="topbar centro">
+        <div class="brand grande">Mec<span>Go</span></div>
+        <h1>Crie sua conta</h1>
+        <p class="sub">Socorro mecânico quando você mais precisa.</p>
+    </header>
+
+    <main class="content">
+        <section class="card">
+            <?php if ($erro !== ''): ?>
+                <div style="background:#fdecea;color:#b71c1c;padding:12px;border-radius:10px;margin-bottom:14px;font-size:14px;">
+                    <?= htmlspecialchars($erro) ?>
+                </div>
+            <?php endif; ?>
+
+            <form action="" method="post">
+
+                <div class="campo">
+                    <label for="nome">Nome completo</label>
+                    <input type="text" id="nome" name="nome" maxlength="100"
+                           value="<?= htmlspecialchars($nome) ?>"
+                           placeholder="Seu nome" autocomplete="name" required>
+                </div>
+
+                <div class="campo">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" maxlength="120"
+                           value="<?= htmlspecialchars($email) ?>"
+                           placeholder="voce@email.com" autocomplete="email" required>
+                </div>
+
+                <div class="campo">
+                    <label for="cpf">CPF</label>
+                    <input type="text" id="cpf" name="cpf" maxlength="14"
+                           value="<?= htmlspecialchars($cpf) ?>"
+                           inputmode="numeric" placeholder="000.000.000-00" required>
+                </div>
+
+                <div class="campo">
+                    <label for="telefone">Telefone (WhatsApp)</label>
+                    <input type="tel" id="telefone" name="telefone" maxlength="15"
+                           value="<?= htmlspecialchars($telefone) ?>"
+                           placeholder="(86) 91234-5678" autocomplete="tel-national" required>
+                </div>
+
+                <div class="campo">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" minlength="8" maxlength="72"
+                           placeholder="Mínimo 8 caracteres" autocomplete="new-password" required>
+                    <p class="dica">Use letras e números.</p>
+                </div>
+
+                <div class="campo">
+                    <label for="confirma_senha">Confirmar senha</label>
+                    <input type="password" id="confirma_senha" name="confirma_senha" minlength="8" maxlength="72"
+                           placeholder="Repita a senha" autocomplete="new-password" required>
+                </div>
+
+                <div class="check">
+                    <input type="checkbox" id="lgpd" name="lgpd" value="1" required>
+                    <label for="lgpd">
+                        Concordo com o tratamento dos meus dados pessoais (nome, CPF, telefone e
+                        localização) para a prestação do serviço de socorro, conforme a LGPD.
+                    </label>
+                </div>
+
+                <button type="submit" class="btn">👤 Criar conta</button>
+            </form>
+        </section>
+
+        <p class="rodape-link">
+            Já tem conta? <a href="index.php">Entrar</a>
+        </p>
+    </main>
+</div>
+</body>
+</html>

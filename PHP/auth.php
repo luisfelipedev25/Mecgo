@@ -6,12 +6,12 @@ if (session_status() === PHP_SESSION_NONE) {
 function exigirLogin(?string $perfilPermitido = null): void
 {
     if (!isset($_SESSION['id_usuario'])) {
-        header('Location: ../HTML/index.html');
+        header('Location: index.php');
         exit;
     }
 
     if ($perfilPermitido !== null && ($_SESSION['perfil'] ?? '') !== $perfilPermitido) {
-        header('Location: ../HTML/index.html');
+        header('Location: index.php');
         exit;
     }
 }
